@@ -8,6 +8,14 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        'whatsapp': {
+          primary: '#6C757D', // Gray
+          secondary: '#ADB5BD', // Light gray
+          background: '#CED4DA', // Lighter gray
+          messageBox: '#E9ECEF', // Lightest gray
+        },
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
@@ -17,4 +25,5 @@ const config: Config = {
   },
   plugins: [],
 };
+
 export default config;

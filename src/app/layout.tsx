@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { SupabaseProvider } from "./context/supabaseProvider";
+import { SupabaseProvider } from "../context/supabaseProvider";
+import { ChatProvider } from "../context/chatProvider"; // Import ChatProvider
+import "semantic-ui-css/semantic.min.css";
+import { ModalProvider } from "@/context/modalProvider";
+import { AuthProvider } from "@/context/authProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,8 +22,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <SupabaseProvider supabaseUrl={process.env.NEXT_PUBLIC_SUPABASE_URL!} supabaseKey={process.env.NEXT_PUBLIC_SUPABASE_KEY!}>
-          {children}
+        <SupabaseProvider
+          supabaseUrl={process.env.NEXT_PUBLIC_SUPABASE_URL!}
+          supabaseKey={process.env.NEXT_PUBLIC_SUPABASE_KEY!}
+        >
+          <ModalProvider>
+            <AuthProvider>
+              <ChatProvider>{children}</ChatProvider>
+            </AuthProvider>
+          </ModalProvider>
         </SupabaseProvider>
       </body>
     </html>

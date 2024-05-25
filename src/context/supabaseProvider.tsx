@@ -33,6 +33,11 @@ export const SupabaseProvider: React.FC<SupabaseProviderProps> = ({
     }
   }, [supabaseClient]);
 
+  // Don't render children until the Supabase client is initialized
+  if (supabaseClient === null) {
+    return null;
+  }
+
   return (
     <SupabaseContext.Provider value={supabaseClient}>
       {children}
@@ -45,5 +50,5 @@ export function useSupabase() {
   if (supabase === null) {
     throw new Error("useSupabase must be used within a SupabaseProvider");
   }
-  return supabase;
+  return { client: supabase };
 }
