@@ -1,5 +1,6 @@
 import { useChat } from "@/context/chatProvider";
-import React from "react";
+import moment from "moment";
+import React, { useEffect } from "react";
 import { Image } from "semantic-ui-react";
 
 export default function ActiveChatHeader() {
@@ -10,7 +11,7 @@ export default function ActiveChatHeader() {
   return (
     <h2 className="flex items-center mb-4">
       <Image
-        src={currentChat?.avatar}
+        src={currentChat?.avatar || "/chat.png"}
         alt={currentChat?.name}
         className="mr-2 w-12 h-12 object-cover rounded-full"
       />

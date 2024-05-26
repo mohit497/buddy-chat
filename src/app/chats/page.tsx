@@ -3,10 +3,10 @@ import ActiveChat from "@/components/activeChat";
 import ActiveChatHeader from "@/components/activeChatHeader";
 import ChatList from "@/components/chatList";
 import UserList from "@/components/usersList";
-import { useAuth } from "@/context/authProvider";
 import { useChat } from "@/context/chatProvider";
+import { useUpdateLastSeen } from "@/hooks/useUpdateLastSeen";
 import React, { useState } from "react";
-import { Input, Image, Tab, Search } from "semantic-ui-react";
+import { Input, Tab } from "semantic-ui-react";
 
 const ChatAppLayout: React.FC = () => {
   const [filter, setFilter] = useState("");
@@ -16,6 +16,8 @@ const ChatAppLayout: React.FC = () => {
   };
 
   const { chats } = useChat();
+
+  useUpdateLastSeen();
 
   const panes = [
     {

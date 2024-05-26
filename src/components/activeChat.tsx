@@ -21,7 +21,6 @@ const ActiveChat: React.FC = () => {
   useEffect(() => {
     async function fetchData() {
       const data = await getMessages(currentChat?.id);
-      console.log(data);
       setMessages(data as unknown as Message[]);
     }
     fetchData();

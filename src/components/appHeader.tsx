@@ -16,6 +16,7 @@ const AppHeader = () => {
         <Menu.Item>
           <Image avatar src={user?.avatar} alt="" />
           <span>{user?.name}</span>
+            
         </Menu.Item>
         <Menu.Item>
           <Button onClick={logout}>Logout</Button>

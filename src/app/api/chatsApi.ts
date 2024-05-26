@@ -15,7 +15,7 @@ class ChatsAPI {
 
     let { data: chatParticipants, error: error1 } = await this.supabase
       .from("chat_participants")
-      .select("chat_id")
+      .select("chat_id, last_seen")
       .eq("user_id", userId);
 
     if (error1) throw error1;
@@ -44,7 +44,7 @@ class ChatsAPI {
   async createChat(participants: User[]): Promise<Chat | null> {
     const chat = {
       name: participants.map((participant) => participant.name).join(", "),
-      avatar: "",
+      avatar: participants[0].avatar || "",
       last_message: "",
     };
 
@@ -140,6 +140,28 @@ class ChatsAPI {
       .insert([message]);
     if (error) throw error;
     return newMessage;
+  }
+
+  // update last Seen for a user in a chat
+  async updateLastSeen(chatId: string, userId: string): Promise<void> {
+    let { error } = await this.supabase
+      .from("chat_participants")
+      .update({ last_seen: new Date() })
+      .eq("chat_id", chatId)
+      .eq("user_id", userId);
+    if (error) throw error;
+  }
+
+  // get last seen for a user in a chat
+  async getLastSeen(chatId: string, userId: string): Promise<number | null> {
+    let { data: participants, error } = await this.supabase
+      .from("chat_participants")
+      .select("last_seen")
+      .eq("chat_id", chatId)
+      .eq("user_id", userId)
+      .single();
+    if (error) throw error;
+    return participants?.last_seen;
   }
 }
 

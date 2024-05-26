@@ -1,5 +1,5 @@
 "use client";
-import { Chat, User , Message} from "@/types";
+import { Chat, User, Message } from "@/types";
 import React, {
   useState,
   useEffect,
@@ -12,16 +12,22 @@ import { useSupabase } from "./supabaseProvider";
 import ChatsAPI from "@/app/api/chatsApi";
 import { useChatSub } from "@/hooks/useChatsSub";
 import { useAuth } from "./authProvider";
+import UserAPI from "@/app/api/userApi";
 
 interface ChatContextData {
   chats: Chat[] | null;
+  setChats: React.Dispatch<React.SetStateAction<Chat[] | null>>;
   currentChat: Chat | null;
   openChat: (chatId: string) => void;
   addChat: (chat: User[]) => Promise<void>;
   removeChat: (chatId: string) => void;
   setCurrentChat: (chat: Chat) => void;
   participants: User[] | null;
-  getMessages: (chatId: string | undefined) => Promise<Message[] | null | undefined>;
+  getMessages: (
+    chatId: string | undefined
+  ) => Promise<Message[] | null | undefined>;
+  users: User[] | null | undefined;
+  chatsApi: ChatsAPI | null;
 }
 
 const ChatContext = createContext<ChatContextData | undefined>(undefined);
@@ -33,8 +39,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [participants, setParticiapants] = useState<User[] | null>(null);
   const chatsAPIRef = useRef<ChatsAPI | null>(null);
+  const usersApiRef = useRef<UserAPI | null>(null);
   const { client } = useSupabase();
   const { user } = useAuth();
+  const [users, setUsers] = useState<User[] | null | undefined>(null);
 
   const getChats = useCallback(async () => {
     chatsAPIRef.current = chatsAPIRef.current || new ChatsAPI(client);
@@ -44,6 +52,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     chatsAPIRef.current = new ChatsAPI(client);
+    usersApiRef.current = new UserAPI(client);
 
     getChats();
   }, [client, getChats]);
@@ -65,19 +74,31 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const getMessages = async (chatId: string | undefined) => {
     if (!chatId) return;
-   const messages =  await  chatsAPIRef.current?.getMessagesByChatId(chatId);
+    const messages = await chatsAPIRef.current?.getMessagesByChatId(chatId);
 
-   return messages;
+    return messages;
   };
 
-  //  fetch current chat particiapants
-  useEffect(() => {
-    const chatsAPI = new ChatsAPI(client);
 
+  const getUsers = async () => {
+    const users = await usersApiRef.current?.getUsers();
+    setUsers(
+      users
+        ?.filter((u) => u.id !== user?.id)
+        .sort((a, b) => {
+          return a.lastActive > b.lastActive ? -1 : 1;
+        })
+    );
+  };
+
+
+  useEffect(() => {
     currentChat &&
-      chatsAPI.getParticipants(currentChat.id).then((data) => {
+      chatsAPIRef.current?.getParticipants(currentChat.id).then((data) => {
         setParticiapants(data);
       });
+
+    getUsers();
   }, [client, currentChat]);
 
   return (
@@ -90,7 +111,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         removeChat,
         setCurrentChat,
         participants,
-        getMessages
+        getMessages,
+        users,
+        setChats,
+        chatsApi: chatsAPIRef.current,
       }}
     >
       {children}
