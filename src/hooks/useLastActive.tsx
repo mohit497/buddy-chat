@@ -15,5 +15,5 @@ export default function useLastActive(userId: string | undefined) {
 
     // Clear interval on component unmount
     return () => clearInterval(intervalId);
-  }, []);
+  }, [client, userId]);
 }

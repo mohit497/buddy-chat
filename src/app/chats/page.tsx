@@ -48,7 +48,7 @@ const ChatAppLayout: React.FC = () => {
           className="mb-4 mx-2"
         />
 
-        <div className="bg-gray-200 h-64 rounded p-2">
+        <div className="bg-gray-200 h-64 rounded m-2">
           <Tab panes={panes} />
         </div>
       </div>

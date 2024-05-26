@@ -16,8 +16,17 @@ export const UserForm = () => {
       name,
       email,
       avatar,
-      lastActive: new Date(), // Add the missing property 'lastActive'
+      lastActive: new Date(),
     };
+
+    // check if user already exists
+    const existingUser = await userAPI.getUser(email);
+
+    if (existingUser) {
+      localStorage.setItem("user", JSON.stringify(existingUser));
+      window.location.href = "/chats";
+      return;
+    }
 
     await userAPI.createUser(user).then((res) => {
       localStorage.setItem("user", JSON.stringify(res));

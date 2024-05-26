@@ -10,7 +10,7 @@ class ChatsAPI {
     this.supabase = supabase;
   }
 
-  async getChats(userId: string | undefined): Promise<Chat[] | null> {
+  async getUserChats(userId: string | undefined): Promise<Chat[] | null> {
     if (!userId) return null;
 
     let { data: chatParticipants, error: error1 } = await this.supabase
@@ -31,7 +31,7 @@ class ChatsAPI {
     return chats;
   }
 
-  async getChat(id: string): Promise<Chat> {
+  async getChatById(id: string): Promise<Chat> {
     let { data: chat, error } = await this.supabase
       .from("chats")
       .select("*")
@@ -104,7 +104,7 @@ class ChatsAPI {
   }
 
   // get messages for a chat
-  async getMessages(chatId: string): Promise<Message[] | null> {
+  async getMessagesByChatId(chatId: string): Promise<Message[] | null> {
     let { data: messages, error } = await this.supabase
       .from("messages")
       .select("*")

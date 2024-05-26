@@ -8,11 +8,11 @@ class UserAPI {
     this.client = client;
   }
 
-  async getUser(userId: string): Promise<User | null> {
+  async getUser(email: string): Promise<User | null> {
     const { data, error } = await this.client
       .from("users")
       .select("*")
-      .eq("id", userId)
+      .eq("email", email)
       .single();
 
     if (error) {
@@ -56,16 +56,9 @@ class UserAPI {
     return data[0] as User;
   }
 
-  // get all users by pagination, filter, and name
-  async getUsers(
-    page: number,
-    limit: number,
-    name?: string
-  ): Promise<User[] | null> {
-    let query = this.client
-      .from("users")
-      .select("*")
-      .range((page - 1) * limit, page * limit - 1);
+  // get all users  and filter by name
+  async getUsers(name?: string): Promise<User[] | null> {
+    let query = this.client.from("users").select("*");
 
     if (name) {
       query = query.ilike("name", `%${name}%`);

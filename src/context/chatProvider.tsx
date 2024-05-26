@@ -6,11 +6,13 @@ import React, {
   createContext,
   useContext,
   useRef,
+  useCallback,
 } from "react";
 import { useSupabase } from "./supabaseProvider";
 import ChatsAPI from "@/app/api/chatsApi";
 import { useChatSub } from "@/hooks/useChatsSub";
 import { useAuth } from "./authProvider";
+import { Message } from "postcss";
 
 interface ChatContextData {
   chats: Chat[] | null;
@@ -20,6 +22,7 @@ interface ChatContextData {
   removeChat: (chatId: string) => void;
   setCurrentChat: (chat: Chat) => void;
   participants: User[] | null;
+  getMessages: (chatId: string) => Message[] | null;
 }
 
 const ChatContext = createContext<ChatContextData | undefined>(undefined);
@@ -34,17 +37,17 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const { client } = useSupabase();
   const { user } = useAuth();
 
-  const getChats = async () => {
+  const getChats = useCallback(async () => {
     chatsAPIRef.current = chatsAPIRef.current || new ChatsAPI(client);
-    const chats = await chatsAPIRef.current.getChats(user?.id);
+    const chats = await chatsAPIRef.current.getUserChats(user?.id);
     setChats(chats);
-  };
+  }, [client, user, setChats]);
 
   useEffect(() => {
     chatsAPIRef.current = new ChatsAPI(client);
 
     getChats();
-  }, [client]);
+  }, [client, getChats]);
 
   useChatSub(getChats);
 
@@ -59,6 +62,12 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const removeChat = async (chatId: string) => {
     await chatsAPIRef.current?.deleteChat(chatId);
+  };
+
+  const getMessages = async (chatId: string) => {
+   const messages =  await  chatsAPIRef.current?.getMessagesByChatId(chatId);
+
+   return messages;
   };
 
   //  fetch current chat particiapants
@@ -81,6 +90,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         removeChat,
         setCurrentChat,
         participants,
+        getMessages
       }}
     >
       {children}

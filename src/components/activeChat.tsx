@@ -15,25 +15,17 @@ import { Utils } from "@/utils/util";
 const ActiveChat: React.FC = () => {
   const { currentChat } = useChat();
   const [messages, setMessages] = useState<Message[] | null>(null);
-  const [participants, setparticipants] = useState<User[]>();
-  const { client } = useSupabase();
   const { user } = useAuth();
-
-  // get chat participants
+  const { participants, getMessages } = useChat();
 
   useEffect(() => {
-    const chatsAPI = new ChatsAPI(client);
-
-    currentChat &&
-      chatsAPI.getMessages(currentChat.id).then((data) => {
-        setMessages(data);
-      });
-
-    currentChat &&
-      chatsAPI.getParticipants(currentChat.id).then((data) => {
-        setparticipants(data || undefined);
-      });
-  }, [client, currentChat]);
+    async function fetchData() {
+      const data = await getMessages(currentChat?.id);
+      console.log(data);
+      setMessages(data as unknown as Message[]);
+    }
+    fetchData();
+  }, [currentChat, getMessages]);
 
   const onChange = (payload: { new: Message }) => {
     setMessages((prevMessages) => [
@@ -72,7 +64,11 @@ const ActiveChat: React.FC = () => {
                   }`}
                 >
                   <Image
-                    src={isOwnMessage ? Utils.getAvatarUrl(user) : Utils.getAvatarUrl(sender)}
+                    src={
+                      isOwnMessage
+                        ? Utils.getAvatarUrl(user)
+                        : Utils.getAvatarUrl(sender)
+                    }
                     alt={sender?.name}
                     className="h-8 w-8 rounded-full mr-2"
                   />
@@ -83,7 +79,7 @@ const ActiveChat: React.FC = () => {
                   >
                     <Comment>
                       <Comment.Content>
-                        <Comment.Author>{sender?.name}</Comment.Author>
+                        {/* <Comment.Author>{sender?.name}</Comment.Author> */}
                         <Comment.Text className="message floating">
                           {message.content}
                         </Comment.Text>

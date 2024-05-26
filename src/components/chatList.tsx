@@ -12,11 +12,10 @@ interface ChatListProps {
 
 const ChatList: React.FC<ChatListProps> = (props) => {
   const { chats } = props;
-  const { setCurrentChat } = useChat(); 
+  const { setCurrentChat, currentChat } = useChat(); 
 
   const handleChatClick = (chat: Chat) => {
-    console.log(chat);
-    setCurrentChat(chat); // Set the current chat when a chat item is clicked
+    setCurrentChat(chat); 
   };
 
 
@@ -26,8 +25,8 @@ const ChatList: React.FC<ChatListProps> = (props) => {
       {chats &&
         chats.map((chat) => (
           <List.Item
-            className="border"
-            key={chat.id}
+          className={`border ${chat.id === currentChat?.id ? 'bg-gray-100' : ''}`}
+          key={chat.id}
             style={{ padding: "10px" }}
             onClick={() => handleChatClick(chat)}
           >
