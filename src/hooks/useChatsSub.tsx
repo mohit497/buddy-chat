@@ -26,5 +26,5 @@ export const useChatSub = (handleInserts: (payload: any) => void) => {
     return () => {
       sub && sub.unsubscribe();
     };
-  }, [client, handleInserts]);
+  }, [client, handleInserts, user?.id]);
 };

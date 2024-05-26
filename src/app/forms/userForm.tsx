@@ -16,6 +16,7 @@ export const UserForm = () => {
       name,
       email,
       avatar,
+      lastActive: new Date(), // Add the missing property 'lastActive'
     };
 
     await userAPI.createUser(user).then((res) => {

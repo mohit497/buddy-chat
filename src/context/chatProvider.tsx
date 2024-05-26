@@ -10,6 +10,7 @@ import React, {
 import { useSupabase } from "./supabaseProvider";
 import ChatsAPI from "@/app/api/chatsApi";
 import { useChatSub } from "@/hooks/useChatsSub";
+import { useAuth } from "./authProvider";
 
 interface ChatContextData {
   chats: Chat[] | null;
@@ -29,17 +30,19 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const [chats, setChats] = useState<Chat[] | null>([]);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
   const [participants, setParticiapants] = useState<User[] | null>(null);
-
   const chatsAPIRef = useRef<ChatsAPI | null>(null);
   const { client } = useSupabase();
+  const { user } = useAuth();
 
   const getChats = async () => {
-    const chatsAPI = new ChatsAPI(client);
-    const chats = await chatsAPI.getChats();
+    chatsAPIRef.current = chatsAPIRef.current || new ChatsAPI(client);
+    const chats = await chatsAPIRef.current.getChats(user?.id);
     setChats(chats);
   };
 
   useEffect(() => {
+    chatsAPIRef.current = new ChatsAPI(client);
+
     getChats();
   }, [client]);
 
@@ -51,11 +54,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const addChat = async (users: User[]) => {
-    try {
-      await chatsAPIRef.current?.createChat(users);
-    } catch (error) {
-      console.error(error);
-    }
+    await chatsAPIRef.current?.createChat(users);
   };
 
   const removeChat = async (chatId: string) => {

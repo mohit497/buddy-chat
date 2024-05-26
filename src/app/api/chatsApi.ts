@@ -10,9 +10,24 @@ class ChatsAPI {
     this.supabase = supabase;
   }
 
-  async getChats(): Promise<Chat[] | null> {
-    let { data: chats, error } = await this.supabase.from("chats").select("*");
-    if (error) throw error;
+  async getChats(userId: string | undefined): Promise<Chat[] | null> {
+    if (!userId) return null;
+
+    let { data: chatParticipants, error: error1 } = await this.supabase
+      .from("chat_participants")
+      .select("chat_id")
+      .eq("user_id", userId);
+
+    if (error1) throw error1;
+
+    const chatIds = chatParticipants?.map((cp) => cp.chat_id) || [];
+
+    let { data: chats, error: error2 } = await this.supabase
+      .from("chats")
+      .select("*")
+      .in("id", chatIds);
+
+    if (error2) throw error2;
     return chats;
   }
 
@@ -29,15 +44,24 @@ class ChatsAPI {
   async createChat(participants: User[]): Promise<Chat | null> {
     const chat = {
       name: participants.map((participant) => participant.name).join(", "),
-      avatar: "", 
+      avatar: "",
       last_message: "",
     };
 
     let { data: newChat, error } = await this.supabase
       .from("chats")
-      .insert([chat]);
+      .insert([chat])
+      .select("*");
     if (error) throw error;
-    return newChat;
+
+    if (newChat) {
+      const chatId = newChat[0].id as string;
+      await this.addParticipant(newChat[0].id, participants);
+
+      return newChat[0];
+    }
+
+    return null;
   }
 
   async updateChat(id: string, chat: Partial<Chat>): Promise<Chat | null> {
@@ -56,14 +80,18 @@ class ChatsAPI {
 
   async addParticipant(
     chatId: string,
-    userId: string
+    users: User[]
   ): Promise<ChatParticipants | null> {
-    const participant: ChatParticipants = { chat_id: chatId, user_id: userId };
-    let { data: newParticipant, error } = await this.supabase
-      .from("chatParticipants")
-      .insert([participant]);
+    const participants = users.map((user) => ({
+      chat_id: chatId,
+      user_id: user.id,
+    }));
+
+    let { data: newParticipants, error } = await this.supabase
+      .from("chat_participants")
+      .insert(participants);
     if (error) throw error;
-    return newParticipant;
+    return newParticipants;
   }
 
   async removeParticipant(chatId: string, userId: string): Promise<void> {

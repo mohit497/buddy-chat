@@ -40,7 +40,7 @@ const UserList = (props: UserListProps) => {
       ]);
       setPage((prevPage) => prevPage + 1);
     }
-  }, [page, filterByName, currentUser]);
+  }, [client, page, filterByName, currentUser?.id]);
 
   useEffect(() => {
     setUsers([]);
@@ -55,7 +55,6 @@ const UserList = (props: UserListProps) => {
   if (!currentUser) return null;
 
   const handleStartChat = async (user: User) => {
-    console.log(user);
     await addChat([currentUser, user]);
   };
 

@@ -10,6 +10,7 @@ import ChatsAPI from "@/app/api/chatsApi";
 import MessageEditor from "./messageEditor";
 import { useAuth } from "@/context/authProvider";
 import { useMessageSub } from "@/hooks/useMessageSub";
+import { Utils } from "@/utils/util";
 
 const ActiveChat: React.FC = () => {
   const { currentChat } = useChat();
@@ -53,7 +54,7 @@ const ActiveChat: React.FC = () => {
   return (
     <div className="p-4 flex flex-col " style={{ height: `${height - 200}px` }}>
       <div className="overflow-auto p-4 ">
-        <Comment.Group style={{minWidth:"100%"}} className="m-2">
+        <Comment.Group style={{ minWidth: "100%" }} className="m-2">
           {messages &&
             messages.map((message: Message) => {
               // Find the user who sent the message from the participants array
@@ -71,7 +72,7 @@ const ActiveChat: React.FC = () => {
                   }`}
                 >
                   <Image
-                    src={isOwnMessage ? user?.avatar : sender?.avatar}
+                    src={isOwnMessage ? Utils.getAvatarUrl(user) : Utils.getAvatarUrl(sender)}
                     alt={sender?.name}
                     className="h-8 w-8 rounded-full mr-2"
                   />

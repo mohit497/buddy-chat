@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { SupabaseClient } from "@supabase/supabase-js";
 import { useSupabase } from "@/context/supabaseProvider";
 
 export const useMessageSub = (
@@ -7,11 +6,11 @@ export const useMessageSub = (
   handleInserts: (payload: any) => void
 ) => {
   const { client } = useSupabase();
+  console.log('chat Id', chatId)
   useEffect(() => {
     let sub;
     // Subscribe to new messages in the current chat
     sub =
-      chatId &&
       client
         .channel("supabase_realtime")
         .on(
