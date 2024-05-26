@@ -27,11 +27,10 @@ class ChatsAPI {
   }
 
   async createChat(participants: User[]): Promise<Chat | null> {
-    const chat: Chat = {
-      id: "", // Generate an ID for the chat
+    const chat = {
       name: participants.map((participant) => participant.name).join(", "),
-      avatar: "", // Provide an avatar for the chat
-      last_message: "", // Initialize an empty last message
+      avatar: "", 
+      last_message: "",
     };
 
     let { data: newChat, error } = await this.supabase

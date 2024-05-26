@@ -1,4 +1,7 @@
+import ChatsAPI from "@/app/api/chatsApi";
 import { useChat } from "@/context/chatProvider";
+import { useSupabase } from "@/context/supabaseProvider";
+import { useChatSub } from "@/hooks/useChatsSub";
 import { Chat } from "@/types";
 import React from "react";
 import { List, Image } from "semantic-ui-react";
@@ -9,12 +12,14 @@ interface ChatListProps {
 
 const ChatList: React.FC<ChatListProps> = (props) => {
   const { chats } = props;
-  const { setCurrentChat } = useChat(); // Destructure setCurrentChat from the context
+  const { setCurrentChat } = useChat(); 
 
   const handleChatClick = (chat: Chat) => {
     console.log(chat);
     setCurrentChat(chat); // Set the current chat when a chat item is clicked
   };
+
+
 
   return (
     <List divided relaxed>

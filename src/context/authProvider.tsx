@@ -1,6 +1,7 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@/types";
+import useLastActive from "@/hooks/useLastActive";
 
 interface AuthContextProps {
   user: User | null | undefined;
@@ -36,6 +37,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       window.location.href = "/chats";
     }
   }, [user]);
+
+   useLastActive(user?.id);
 
   return (
     <AuthContext.Provider value={{ user, setUser, logout }}>

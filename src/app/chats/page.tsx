@@ -2,7 +2,7 @@
 import ActiveChat from "@/components/activeChat";
 import ActiveChatHeader from "@/components/activeChatHeader";
 import ChatList from "@/components/chatList";
-import UserList from "@/components/users";
+import UserList from "@/components/usersList";
 import { useAuth } from "@/context/authProvider";
 import { useChat } from "@/context/chatProvider";
 import React, { useState } from "react";
@@ -16,7 +16,6 @@ const ChatAppLayout: React.FC = () => {
   };
 
   const { chats } = useChat();
-  const { user } = useAuth();
 
   const panes = [
     {
@@ -31,7 +30,7 @@ const ChatAppLayout: React.FC = () => {
       menuItem: "Users",
       render: () => (
         <Tab.Pane>
-          <UserList filterByName={filter}/>
+          <UserList filterByName={filter} />
         </Tab.Pane>
       ),
     },
@@ -45,7 +44,7 @@ const ChatAppLayout: React.FC = () => {
           value={filter}
           fluid
           onChange={handleFilterChange}
-          placeholder="Search chats..."
+          placeholder="Search "
           className="mb-4 mx-2"
         />
 

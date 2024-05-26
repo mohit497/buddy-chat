@@ -20,6 +20,7 @@ export interface User {
   name: string;
   email: string;
   avatar: string;
+  lastActive: Date;
 }
 
 export interface ChatParticipants {

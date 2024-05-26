@@ -9,12 +9,13 @@ import React, {
 } from "react";
 import { useSupabase } from "./supabaseProvider";
 import ChatsAPI from "@/app/api/chatsApi";
+import { useChatSub } from "@/hooks/useChatsSub";
 
 interface ChatContextData {
   chats: Chat[] | null;
   currentChat: Chat | null;
   openChat: (chatId: string) => void;
-  addChat: (chat: User) => Promise<void>;
+  addChat: (chat: User[]) => Promise<void>;
   removeChat: (chatId: string) => void;
   setCurrentChat: (chat: Chat) => void;
   participants: User[] | null;
@@ -32,31 +33,28 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   const chatsAPIRef = useRef<ChatsAPI | null>(null);
   const { client } = useSupabase();
 
-  useEffect(() => {
+  const getChats = async () => {
     const chatsAPI = new ChatsAPI(client);
+    const chats = await chatsAPI.getChats();
+    setChats(chats);
+  };
 
-    const fetchChats = async () => {
-      try {
-        const chats = await chatsAPI.getChats();
-        setChats(chats);
-      } catch (error) {
-        console.log("Error fetching chats", error);
-      }
-    };
-
-    fetchChats();
+  useEffect(() => {
+    getChats();
   }, [client]);
+
+  useChatSub(getChats);
 
   const openChat = (chatId: string) => {
     const chat = chats?.find((chat) => chat.id === chatId);
     setCurrentChat(chat || null);
   };
 
-  const addChat = async (chat: User) => {
+  const addChat = async (users: User[]) => {
     try {
-      const newChat = await chatsAPIRef.current?.createChat([chat]);
+      await chatsAPIRef.current?.createChat(users);
     } catch (error) {
-      console.log("Error adding chat", error);
+      console.error(error);
     }
   };
 

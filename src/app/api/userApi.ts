@@ -80,6 +80,21 @@ class UserAPI {
 
     return data;
   }
+
+  // udpate last Active when user is active
+  async updateLastActive(userId: string): Promise<User | null> {
+    const { data, error } = await this.client
+      .from("users")
+      .update({ lastActive: new Date() })
+      .eq("id", userId);
+
+    if (error) {
+      console.error("Error updating user last active:", error);
+      return null;
+    }
+
+    return data;
+  }
 }
 
 export default UserAPI;
