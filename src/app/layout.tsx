@@ -6,6 +6,7 @@ import { ChatProvider } from "../context/chatProvider"; // Import ChatProvider
 import "semantic-ui-css/semantic.min.css";
 import { ModalProvider } from "@/context/modalProvider";
 import { AuthProvider } from "@/context/authProvider";
+import AppHeader from "@/components/appHeader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,7 +28,8 @@ export default function RootLayout({
           supabaseKey={process.env.NEXT_PUBLIC_SUPABASE_KEY!}
         >
           <ModalProvider>
-            <AuthProvider>
+            <AuthProvider >
+              <AppHeader />
               <ChatProvider>{children}</ChatProvider>
             </AuthProvider>
           </ModalProvider>

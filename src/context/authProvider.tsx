@@ -1,12 +1,11 @@
 "use client";
 import { createContext, useContext, useEffect, useState } from "react";
 import { User } from "@/types";
-import { useModal } from "./modalProvider";
-import { UserForm } from "@/app/forms/userForm";
 
 interface AuthContextProps {
   user: User | null | undefined;
   setUser: (user: User) => void;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -22,14 +21,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return null;
   });
 
-  const { showModal } = useModal();
+  const logout = () => {
+    localStorage.removeItem("user");
+    setUser(null);
+    window.location.href = "/";
+  };
 
   useEffect(() => {
-    !user && showModal(<UserForm />);
-  }, [showModal, user]);
+    if (!user && window.location.pathname !== "/") {
+      window.location.href = "/";
+    }
+
+    if (user && window.location.pathname !== "/chats") {
+      window.location.href = "/chats";
+    }
+  }, [user]);
 
   return (
-    <AuthContext.Provider value={{ user, setUser }}>
+    <AuthContext.Provider value={{ user, setUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

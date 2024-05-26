@@ -2,7 +2,7 @@
 import { useChat } from "@/context/chatProvider";
 import { Message, User } from "@/types";
 import React, { useEffect, useState } from "react";
-import { Comment } from "semantic-ui-react";
+import { Comment, Image } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import "tailwindcss/tailwind.css";
 import { useSupabase } from "@/context/supabaseProvider";
@@ -47,30 +47,54 @@ const ActiveChat: React.FC = () => {
     return <div className="h2">Select a chat to view messages</div>;
   }
 
-  // get height of screen 
+  // get height of screen
   const height = window.innerHeight;
 
   return (
-    <div className="p-4 flex flex-col " style={{height: `${height-100}px`}}>
-      <div className="overflow-auto ">
-        <Comment.Group>
+    <div className="p-4 flex flex-col " style={{ height: `${height - 200}px` }}>
+      <div className="overflow-auto p-4 ">
+        <Comment.Group style={{minWidth:"100%"}} className="m-2">
           {messages &&
             messages.map((message: Message) => {
               // Find the user who sent the message from the participants array
-              const user = participants?.find(
+              const sender = participants?.find(
                 (participant) => participant.id === message.sender
               );
 
+              const isOwnMessage = user?.id === message.sender;
+
               return (
-                <Comment key={message.id}>
-                  <Comment.Avatar src={user?.avatar} />
-                  <Comment.Content>
-                    <Comment.Author>{user?.name}</Comment.Author>
-                    <Comment.Text className="message  floating">
-                      {message.content}
-                    </Comment.Text>
-                  </Comment.Content>
-                </Comment>
+                <div
+                  key={message.id}
+                  className={`flex items-center m-2 ${
+                    isOwnMessage ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <Image
+                    src={isOwnMessage ? user?.avatar : sender?.avatar}
+                    alt={sender?.name}
+                    className="h-8 w-8 rounded-full mr-2"
+                  />
+                  <div
+                    className={`p-3 rounded-lg ${
+                      isOwnMessage ? "bg-green-100" : "bg-white"
+                    }`}
+                  >
+                    <Comment>
+                      <Comment.Content>
+                        <Comment.Author>{sender?.name}</Comment.Author>
+                        <Comment.Text className="message floating">
+                          {message.content}
+                        </Comment.Text>
+                        <Comment.Metadata>
+                          {new Date(
+                            message.timestamp || ""
+                          ).toLocaleTimeString()}
+                        </Comment.Metadata>
+                      </Comment.Content>
+                    </Comment>
+                  </div>
+                </div>
               );
             })}
         </Comment.Group>

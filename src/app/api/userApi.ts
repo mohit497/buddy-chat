@@ -42,7 +42,10 @@ class UserAPI {
 
   // create a new user
   async createUser(user: User): Promise<User | null> {
-    const { data, error } = await this.client.from("users").insert([user]).select("*");
+    const { data, error } = await this.client
+      .from("users")
+      .insert([user])
+      .select("*");
     console.log("data", data, error);
 
     if (error) {
@@ -51,6 +54,31 @@ class UserAPI {
     }
 
     return data[0] as User;
+  }
+
+  // get all users by pagination, filter, and name
+  async getUsers(
+    page: number,
+    limit: number,
+    name?: string
+  ): Promise<User[] | null> {
+    let query = this.client
+      .from("users")
+      .select("*")
+      .range((page - 1) * limit, page * limit - 1);
+
+    if (name) {
+      query = query.ilike("name", `%${name}%`);
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("Error fetching users:", error);
+      return null;
+    }
+
+    return data;
   }
 }
 

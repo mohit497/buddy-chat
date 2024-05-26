@@ -29,9 +29,8 @@ class ChatsAPI {
   async createChat(participants: User[]): Promise<Chat | null> {
     const chat: Chat = {
       id: "", // Generate an ID for the chat
-      name: participants[0].name, // Name the chat after the first participant
+      name: participants.map((participant) => participant.name).join(", "),
       avatar: "", // Provide an avatar for the chat
-      messages: [], // Initialize an empty messages array
       last_message: "", // Initialize an empty last message
     };
 
