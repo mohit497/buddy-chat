@@ -1,13 +1,10 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import { Button, List, Image, Icon } from "semantic-ui-react";
 import { useSupabase } from "@/context/supabaseProvider";
-import UserAPI from "@/app/api/userApi";
-import InfiniteScroll from "react-infinite-scroll-component";
 import { useAuth } from "@/context/authProvider";
 import { User } from "@/types";
 import moment from "moment";
 import { useChat } from "@/context/chatProvider";
-import { PAGE_SIZE } from "@/app/constants";
 import { useGetUsers } from "@/hooks/useGetUsers";
 
 interface UserListProps {

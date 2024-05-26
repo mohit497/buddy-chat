@@ -1,5 +1,5 @@
 "use client";
-import { Chat, User, ChatParticipants } from "@/types";
+import { Chat, User , Message} from "@/types";
 import React, {
   useState,
   useEffect,
@@ -12,7 +12,6 @@ import { useSupabase } from "./supabaseProvider";
 import ChatsAPI from "@/app/api/chatsApi";
 import { useChatSub } from "@/hooks/useChatsSub";
 import { useAuth } from "./authProvider";
-import { Message } from "postcss";
 
 interface ChatContextData {
   chats: Chat[] | null;
@@ -22,7 +21,7 @@ interface ChatContextData {
   removeChat: (chatId: string) => void;
   setCurrentChat: (chat: Chat) => void;
   participants: User[] | null;
-  getMessages: (chatId: string) => Message[] | null;
+  getMessages: (chatId: string | undefined) => Promise<Message[] | null | undefined>;
 }
 
 const ChatContext = createContext<ChatContextData | undefined>(undefined);
@@ -64,7 +63,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
     await chatsAPIRef.current?.deleteChat(chatId);
   };
 
-  const getMessages = async (chatId: string) => {
+  const getMessages = async (chatId: string | undefined) => {
+    if (!chatId) return;
    const messages =  await  chatsAPIRef.current?.getMessagesByChatId(chatId);
 
    return messages;

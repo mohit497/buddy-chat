@@ -5,8 +5,8 @@ import { useState, useCallback, useEffect } from "react";
 
 export const useGetUsers = (
   client: any,
-  filterByName: string,
-  currentUser: User | null
+  filterByName: string | undefined,
+  currentUser: User | null | undefined
 ) => {
   const [users, setUsers] = useState<User[]>([]);
 
