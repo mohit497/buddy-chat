@@ -31,3 +31,4 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## About
 This is a realtime chat application where users can chat with each other in realtime.
+
