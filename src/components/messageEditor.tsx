@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import { Button, Form, Grid, Input } from "semantic-ui-react";
+import { Button, Grid, Input } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
-import "tailwindcss/tailwind.css";
 import ChatsAPI from "@/app/api/chatsApi";
 import { useSupabase } from "@/context/supabaseProvider";
 import { Message } from "@/types";

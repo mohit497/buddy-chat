@@ -5,15 +5,16 @@ const config: Config = {
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
       colors: {
-        'whatsapp': {
-          primary: '#6C757D', // Gray
-          secondary: '#ADB5BD', // Light gray
-          background: '#CED4DA', // Lighter gray
-          messageBox: '#E9ECEF', // Lightest gray
+        whatsapp: {
+          primary: "#6C757D", // Gray
+          secondary: "#ADB5BD", // Light gray
+          background: "#CED4DA", // Lighter gray
+          messageBox: "#E9ECEF", // Lightest gray
         },
       },
       backgroundImage: {

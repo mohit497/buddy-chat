@@ -2,10 +2,8 @@
 import ActiveChat from "@/components/activeChat";
 import ActiveChatHeader from "@/components/activeChatHeader";
 import UserList from "@/components/usersList";
-import { useChat } from "@/context/chatProvider";
 import React, { useState } from "react";
 import { Input, Tab } from "semantic-ui-react";
-import { HEIGHT_OFFSET } from "../constants";
 
 const ChatAppLayout: React.FC = () => {
   const [filter, setFilter] = useState("");
