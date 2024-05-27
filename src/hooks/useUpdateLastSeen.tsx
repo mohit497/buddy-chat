@@ -21,7 +21,7 @@ export const useUpdateLastSeen = () => {
           if (!prevChats) return prevChats;
           return prevChats.map((chat) => {
             if (chat.id === currentChat.id) {
-              return { ...chat, last_seen: new Date() };
+              return { ...chat, last_seen: new Date().toString() }; // Convert Date to number
             }
             return chat;
           });
