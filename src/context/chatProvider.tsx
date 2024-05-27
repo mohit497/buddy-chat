@@ -21,7 +21,7 @@ interface ChatContextData {
   selectedUser: User | null;
   setSelectedUser: React.Dispatch<React.SetStateAction<User | null>>;
   openChat: (chatId: string) => void;
-  addChat: (users: User[]) => Promise<Chat>;
+  addChat: (users: User[]) => Promise<Chat | null | undefined>;
   removeChat: (chatId: string) => void;
   setCurrentChat: (chat: Chat) => void;
   participants: User[] | null;
