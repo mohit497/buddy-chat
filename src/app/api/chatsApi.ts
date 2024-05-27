@@ -99,21 +99,24 @@ class ChatsAPI {
       .from("chatParticipants")
       .delete()
       .eq("chat_id", chatId)
-      .eq("user_id", userId);
+      .order("timestamp", { ascending: false });
     if (error) throw error;
   }
 
-  // get messages for a chat
-  async getMessagesByChatId(chatId: string): Promise<Message[] | null> {
+  async getMessagesByChatId(
+    chatId: string,
+    start: number,
+    end: number
+  ): Promise<Message[] | null> {
     let { data: messages, error } = await this.supabase
       .from("messages")
       .select("*")
-      .eq("chatId", chatId);
+      .eq("chatId", chatId)
+      .range(start, end)
+      .order("timestamp", { ascending: false });
     if (error) throw error;
     return messages;
   }
-
-  // get participants for a chat
   async getParticipants(chatId: string): Promise<User[] | null> {
     let { data: participants, error } = await this.supabase
       .from("chat_participants")
@@ -133,7 +136,6 @@ class ChatsAPI {
     return users;
   }
 
-  // send message in a chat
   async sendMessage(message: Message): Promise<Message | null> {
     let { data: newMessage, error } = await this.supabase
       .from("messages")
@@ -142,7 +144,6 @@ class ChatsAPI {
     return newMessage;
   }
 
-  // update last Seen for a user in a chat
   async updateLastSeen(chatId: string, userId: string): Promise<void> {
     let { error } = await this.supabase
       .from("chat_participants")
@@ -152,7 +153,6 @@ class ChatsAPI {
     if (error) throw error;
   }
 
-  // get last seen for a user in a chat
   async getLastSeen(chatId: string, userId: string): Promise<number | null> {
     let { data: participants, error } = await this.supabase
       .from("chat_participants")
@@ -162,6 +162,42 @@ class ChatsAPI {
       .single();
     if (error) throw error;
     return participants?.last_seen;
+  }
+
+  async findChatByParticipants(participants: User[]): Promise<Chat | null> {
+    const participantIds = participants.map((p) => p.id);
+
+    // Fetch all chat IDs where the specified participants are present
+    let { data: chatParticipants, error } = await this.supabase
+      .from("chat_participants")
+      .select("chat_id")
+      .in("user_id", participantIds);
+
+    if (error) throw error;
+
+    const chatIdCounts = chatParticipants?.reduce((acc, cp) => {
+      acc[cp.chat_id] = (acc[cp.chat_id] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Filter chat IDs that have exactly the number of specified participants
+    const validChatIds = Object.keys(chatIdCounts ?? {}).filter(
+      (chatId) => chatIdCounts?.[chatId] === participantIds.length
+    );
+
+    if (validChatIds.length === 0) {
+      return null; // No chats found with the exact participants
+    }
+
+    // Fetch the chat data
+    let { data: chats, error: error2 } = await this.supabase
+      .from("chats")
+      .select("*")
+      .in("id", validChatIds);
+
+    if (error2) throw error2;
+
+    return chats?.[0] || null;
   }
 }
 

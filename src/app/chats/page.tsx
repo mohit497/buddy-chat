@@ -1,12 +1,11 @@
 "use client";
 import ActiveChat from "@/components/activeChat";
 import ActiveChatHeader from "@/components/activeChatHeader";
-import ChatList from "@/components/chatList";
 import UserList from "@/components/usersList";
 import { useChat } from "@/context/chatProvider";
-import { useUpdateLastSeen } from "@/hooks/useUpdateLastSeen";
 import React, { useState } from "react";
 import { Input, Tab } from "semantic-ui-react";
+import { HEIGHT_OFFSET } from "../constants";
 
 const ChatAppLayout: React.FC = () => {
   const [filter, setFilter] = useState("");
@@ -15,28 +14,6 @@ const ChatAppLayout: React.FC = () => {
     setFilter(event.target.value);
   };
 
-  const { chats } = useChat();
-
-  useUpdateLastSeen();
-
-  const panes = [
-    {
-      menuItem: "Chats",
-      render: () => (
-        <Tab.Pane>
-          <ChatList chats={chats} />
-        </Tab.Pane>
-      ),
-    },
-    {
-      menuItem: "Users",
-      render: () => (
-        <Tab.Pane>
-          <UserList filterByName={filter} />
-        </Tab.Pane>
-      ),
-    },
-  ];
 
   return (
     <div className="flex  bg-gray-100">
@@ -50,13 +27,14 @@ const ChatAppLayout: React.FC = () => {
           className="mb-4 mx-2"
         />
 
-        <div className="bg-gray-200 h-64 rounded m-2">
-          <Tab panes={panes} />
+        <div
+          className="bg-gray-200  rounded "
+        >
+          <UserList filterByName={filter} />
         </div>
       </div>
-      <div className="w-2/3 p-4 ">
+      <div className="w-2/3 p-4  ">
         <ActiveChatHeader />
-
         <div className="bg-gray-200  rounded p-4">
           <ActiveChat />
         </div>

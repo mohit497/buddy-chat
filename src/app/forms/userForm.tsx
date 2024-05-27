@@ -7,9 +7,36 @@ export const UserForm = () => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [avatar, setAvatar] = useState("");
+  const [nameError, setNameError] = useState("");
+  const [emailError, setEmailError] = useState("");
   const { client } = useSupabase();
 
+  const validateForm = () => {
+    let isValid = true;
+
+    if (name.trim() === "") {
+      setNameError("Name is required");
+      isValid = false;
+    } else {
+      setNameError("");
+    }
+
+    if (!/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
+      setEmailError("Email is not valid");
+      isValid = false;
+    } else {
+      setEmailError("");
+    }
+
+    return isValid;
+  };
+
   const handleSubmit = async () => {
+
+    if (!validateForm()) {
+      return;
+    }
+
     const userAPI = new UserAPI(client);
 
     const user = {
@@ -32,7 +59,8 @@ export const UserForm = () => {
       localStorage.setItem("user", JSON.stringify(res));
       window.location.href = "/chats";
     });
-  };
+
+  }
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -43,6 +71,7 @@ export const UserForm = () => {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
+        {nameError && <div className="text-red-500">{nameError}</div>}
       </Form.Field>
       <Form.Field>
         <label>Email</label>
@@ -51,6 +80,7 @@ export const UserForm = () => {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
+        {emailError && <div className="text-red-500">{emailError}</div>}
       </Form.Field>
       <Form.Field>
         <label>Avatar URL</label>
@@ -60,7 +90,9 @@ export const UserForm = () => {
           onChange={(e) => setAvatar(e.target.value)}
         />
       </Form.Field>
-      <Button type="submit">Submit</Button>
+      <Button type="submit" className="mx-auto">
+        Submit
+      </Button>
     </Form>
   );
 };

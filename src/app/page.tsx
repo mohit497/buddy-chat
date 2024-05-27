@@ -7,7 +7,7 @@ export default function Home() {
       <h1 className="text-4xl font-bold">Welcome to Buddy Chat</h1>
       <p className="mt-4 text-lg">Start chatting with your buddies!</p>
 
-      <div className="mt-8 w-100">
+      <div className="mt-8 w-1/3">
         <UserForm />
       </div>
     </main>

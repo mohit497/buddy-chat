@@ -18,13 +18,17 @@ interface ChatContextData {
   chats: Chat[] | null;
   setChats: React.Dispatch<React.SetStateAction<Chat[] | null>>;
   currentChat: Chat | null;
+  selectedUser: User | null;
+  setSelectedUser: React.Dispatch<React.SetStateAction<User | null>>;
   openChat: (chatId: string) => void;
-  addChat: (chat: User[]) => Promise<void>;
+  addChat: (users: User[]) => Promise<Chat>;
   removeChat: (chatId: string) => void;
   setCurrentChat: (chat: Chat) => void;
   participants: User[] | null;
   getMessages: (
-    chatId: string | undefined
+    chatId: string | undefined,
+    start: number,
+    end: number
   ) => Promise<Message[] | null | undefined>;
   users: User[] | null | undefined;
   chatsApi: ChatsAPI | null;
@@ -37,6 +41,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [chats, setChats] = useState<Chat[] | null>([]);
   const [currentChat, setCurrentChat] = useState<Chat | null>(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [participants, setParticiapants] = useState<User[] | null>(null);
   const chatsAPIRef = useRef<ChatsAPI | null>(null);
   const usersApiRef = useRef<UserAPI | null>(null);
@@ -65,20 +70,27 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const addChat = async (users: User[]) => {
-    await chatsAPIRef.current?.createChat(users);
+    return await chatsAPIRef.current?.createChat(users);
   };
 
   const removeChat = async (chatId: string) => {
     await chatsAPIRef.current?.deleteChat(chatId);
   };
 
-  const getMessages = async (chatId: string | undefined) => {
+  const getMessages = async (
+    chatId: string | undefined,
+    start: number,
+    end: number
+  ) => {
     if (!chatId) return;
-    const messages = await chatsAPIRef.current?.getMessagesByChatId(chatId);
+    const messages = await chatsAPIRef.current?.getMessagesByChatId(
+      chatId,
+      start,
+      end
+    );
 
     return messages;
   };
-
 
   const getUsers = async () => {
     const users = await usersApiRef.current?.getUsers();
@@ -89,17 +101,36 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
           return a.lastActive > b.lastActive ? -1 : 1;
         })
     );
+
+    setSelectedUser(users?.[0] || null);
   };
 
+  useEffect(() => {
+    getUsers();
+  }, [client]);
 
   useEffect(() => {
     currentChat &&
       chatsAPIRef.current?.getParticipants(currentChat.id).then((data) => {
         setParticiapants(data);
       });
+  }, [currentChat]);
 
-    getUsers();
-  }, [client, currentChat]);
+  useEffect(() => {
+    // find the chat for seleected user and user
+    if (selectedUser && user) {
+      chatsAPIRef.current
+        ?.findChatByParticipants([selectedUser, user])
+        .then((chat) => {
+          if (chat) {
+            openChat(chat.id);
+            setCurrentChat(chat);
+          } else {
+            setCurrentChat(null);
+          }
+        });
+    }
+  }, [client, selectedUser]);
 
   return (
     <ChatContext.Provider
@@ -115,6 +146,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
         users,
         setChats,
         chatsApi: chatsAPIRef.current,
+        selectedUser,
+        setSelectedUser,
       }}
     >
       {children}

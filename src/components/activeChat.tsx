@@ -1,50 +1,81 @@
 "use client";
 import { useChat } from "@/context/chatProvider";
 import { Message, User } from "@/types";
-import React, { useEffect, useState } from "react";
-import { Comment, Image } from "semantic-ui-react";
-import "semantic-ui-css/semantic.min.css";
-import "tailwindcss/tailwind.css";
-import { useSupabase } from "@/context/supabaseProvider";
-import ChatsAPI from "@/app/api/chatsApi";
+import React, { useEffect, useRef, useState } from "react";
+import { Comment } from "semantic-ui-react";
 import MessageEditor from "./messageEditor";
 import { useAuth } from "@/context/authProvider";
-import { useMessageSub } from "@/hooks/useMessageSub";
 import { Utils } from "@/utils/util";
+import useGetMessages from "@/hooks/useGetMessages";
+import moment from "moment";
+import { HEIGHT_OFFSET } from "@/app/constants";
 
 const ActiveChat: React.FC = () => {
   const { currentChat } = useChat();
-  const [messages, setMessages] = useState<Message[] | null>(null);
   const { user } = useAuth();
-  const { participants, getMessages } = useChat();
+  const { participants, getMessages, selectedUser, addChat, setCurrentChat } =
+    useChat();
 
+  const { messages, loading, hasMore, loadMore } = useGetMessages(
+    currentChat?.id
+  );
+  const messageContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // Load more messages when the user scrolls to the top of the chat
   useEffect(() => {
-    async function fetchData() {
-      const data = await getMessages(currentChat?.id);
-      setMessages(data as unknown as Message[]);
+    const handleScroll = (e: Event) => {
+      const scrollTop = (e.target as HTMLElement).scrollTop;
+      if (scrollTop === 0) {
+        loadMore();
+      }
+    };
+    if (messageContainerRef.current) {
+      messageContainerRef.current.addEventListener("scroll", handleScroll);
     }
-    fetchData();
-  }, [currentChat, getMessages]);
+    const cleanup = () => {
+      if (messageContainerRef.current) {
+        messageContainerRef.current.removeEventListener("scroll", handleScroll);
+      }
+    };
+    return () => {
+      cleanup();
+    };
+  }, [loadMore]);
 
-  const onChange = (payload: { new: Message }) => {
-    setMessages((prevMessages) => [
-      ...(prevMessages as Message[]),
-      payload.new,
-    ]);
+  const handleStartChat = async () => {
+    if (selectedUser && user) {
+      const chat = await addChat([user, selectedUser]);
+      chat && setCurrentChat(chat);
+    }
   };
 
-  useMessageSub(currentChat?.id, onChange);
-
   if (!currentChat) {
-    return <div className="h2">Select a chat to view messages</div>;
+    return (
+      <div className="h2">
+        Start a new Chat with {selectedUser?.name}
+        <button
+          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded"
+          onClick={handleStartChat}
+        >
+          Start Chat
+        </button>
+      </div>
+    );
   }
 
   // get height of screen
   const height = window.innerHeight;
 
   return (
-    <div className="p-4 flex flex-col " style={{ height: `${height - 200}px` }}>
-      <div className="overflow-auto p-4 ">
+    <div
+      className="p-4 flex flex-col "
+      style={{ height: `${height - HEIGHT_OFFSET}px` }}
+    >
+      <div className="overflow-auto p-4 " ref={messageContainerRef}>
+        {loading && <div>loading...</div>}
+        {!hasMore && (
+          <div className="text-center text-gray-500">No more messages</div>
+        )}
         <Comment.Group style={{ minWidth: "100%" }} className="m-2">
           {messages &&
             messages.map((message: Message) => {
@@ -62,14 +93,14 @@ const ActiveChat: React.FC = () => {
                     isOwnMessage ? "justify-end" : "justify-start"
                   }`}
                 >
-                  <Image
+                  <img
                     src={
                       isOwnMessage
                         ? Utils.getAvatarUrl(user)
                         : Utils.getAvatarUrl(sender)
                     }
                     alt={sender?.name}
-                    className="h-8 w-8 rounded-full mr-2"
+                    className="h-8 w-8 object-cover rounded-full mr-2"
                   />
                   <div
                     className={`p-3 rounded-lg ${
@@ -83,9 +114,13 @@ const ActiveChat: React.FC = () => {
                           {message.content}
                         </Comment.Text>
                         <Comment.Metadata>
-                          {new Date(
-                            message.timestamp || ""
-                          ).toLocaleTimeString()}
+                          <span
+                            title={moment(message.timestamp).format(
+                              "MMMM Do YYYY, h:mm:ss a"
+                            )}
+                          >
+                            {moment(message.timestamp).format("MMMM D h:mm A")}
+                          </span>
                         </Comment.Metadata>
                       </Comment.Content>
                     </Comment>
