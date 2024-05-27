@@ -13,7 +13,7 @@ export interface Chat {
   name: string;
   avatar: string;
   last_message: string;
-  last_seen?: number;
+  last_seen?: string;
 }
 
 export interface User {
